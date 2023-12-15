@@ -20,6 +20,7 @@ class User(db.Model):
 
     username = db.Column(db.Text, nullable=False, unique=True)
 
+    # should have passwords be certain length
     password = db.Column(db.Text, nullable=False)
 
     @classmethod
@@ -37,3 +38,21 @@ class User(db.Model):
     def authenticate(cls, username, pwd):
         """validate that user exists and password is correct
         return user if valid, else return false"""
+
+        u = User.query.filter_by(username=username).first()
+
+        if u and bcrypt.check_password_hash(u.password, pwd):
+            # return user instance
+            return u
+        else:
+            return False
+
+class Tweet(db.Model):
+    __tablename__ = 'tweets'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    text = db.Column(db.Text, nullable=False)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user = db.relationship('User', backref='tweets')
